@@ -38,7 +38,7 @@ public class Text2SpeechController {
 
   public Text2SpeechController(AppConfig appConfig) {
 
-    System.out.println("Current location : " + new File(".").getAbsolutePath());
+    System.out.println("Current location : " + new File("./config/").getAbsolutePath());
       System.out.println("Text2SpeechController " + appConfig.getCredentialsPath());
       System.out.println("Text2SpeechController " + appConfig.toString());
     try {

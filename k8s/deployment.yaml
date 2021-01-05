@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ts-api
+  labels:
+    app: ts-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ts-api
+  template:
+    metadata:
+      labels:
+        app: ts-api
+    spec:
+      containers:
+        - name: ts-api
+          image: abidurrehman/txt2speech-api
+          ports:
+            - containerPort: 8080
+          volumeMounts: # Setting volume
+            - name: ts-config-volume
+              mountPath: /config
+      volumes:
+        - name: ts-config-volume
+          configMap:
+            name: txt2speech-configmap
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ts-api-service
+spec:
+  selector:
+    app: ts-api
+  ports:
+    - protocol: TCP
+      port: 8080
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ts-api-ingress
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  rules:
+    - host: ts-api.holidaynumbers.co.uk
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: ts-api-service
+              servicePort: 8080
+  tls:
+    - hosts:
+        - ts-api.holidaynumbers.co.uk
+      secretName: ts-api-holidaynumbers-co-uk-tls
