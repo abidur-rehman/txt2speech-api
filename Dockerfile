@@ -1,4 +1,4 @@
-FROM balenalib/raspberrypi3-openjdk:8-jdk
+FROM balenalib/raspberrypi3-openjdk:11-jdk
 VOLUME /tmp
 COPY src/main/resources/application.properties /application.properties
 COPY src/main/resources/logback.xml /logback.xml
