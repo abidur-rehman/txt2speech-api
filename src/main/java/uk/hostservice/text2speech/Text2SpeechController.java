@@ -71,26 +71,37 @@ public class Text2SpeechController {
         .collect(Collectors.toList());
   }
 
-  @PostMapping("speak")
-  public byte[] speak(@RequestParam("language") String language,
+  @PostMapping("speakText")
+  public byte[] speakText(@RequestParam("language") String language,
       @RequestParam("voice") String voice, @RequestParam("text") String text,
       @RequestParam("pitch") double pitch,
       @RequestParam("speakingRate") double speakingRate) {
 
     SynthesisInput input = SynthesisInput.newBuilder().setText(text).build();
-      System.out.println("input " +input);
+    return convertToBytes(language, voice, pitch, speakingRate, input);
+  }
 
+  @PostMapping("speak")
+  public byte[] speakSSML(@RequestParam("language") String language,
+      @RequestParam("voice") String voice, @RequestParam("text") String text,
+      @RequestParam("pitch") double pitch,
+      @RequestParam("speakingRate") double speakingRate) {
+
+    String ssmlText = convertToSSMLText(text);
+    SynthesisInput input = SynthesisInput.newBuilder().setSsml(ssmlText).build();
+    return convertToBytes(language, voice, pitch, speakingRate, input);
+  }
+
+  private byte[] convertToBytes(String language, String voice, double pitch, double speakingRate, SynthesisInput input) {
     VoiceSelectionParams voiceSelection = VoiceSelectionParams.newBuilder()
         .setLanguageCode(language).setName(voice).build();
-      System.out.println("voiceSelection " +voiceSelection);
 
     AudioConfig audioConfig = AudioConfig.newBuilder().setPitch(pitch)
         .setSpeakingRate(speakingRate).setAudioEncoding(AudioEncoding.MP3).build();
-      System.out.println("audioConfig " +audioConfig);
 
     SynthesizeSpeechResponse response = this.textToSpeechClient.synthesizeSpeech(input,
         voiceSelection, audioConfig);
-      System.out.println("response " +response.isInitialized());
+    System.out.println("response " +response.isInitialized());
 
     return response.getAudioContent().toByteArray();
   }
@@ -101,6 +112,13 @@ public class Text2SpeechController {
       return languageCode.toStringUtf8();
     }
     return null;
+  }
+
+  private String convertToSSMLText(String text) {
+    String expandedNewline = text.replaceAll("\\*", "\n<break time='2s'/>");
+    String ssml = "<speak>" + expandedNewline + "</speak>";
+    System.out.println("Converted string " + ssml);
+    return ssml;
   }
 
 }
