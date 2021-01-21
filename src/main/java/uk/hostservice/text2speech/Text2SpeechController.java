@@ -115,7 +115,7 @@ public class Text2SpeechController {
   }
 
   private String convertToSSMLText(String text) {
-    String expandedNewline = text.replaceAll("\\*", "\n<break time='2s'/>");
+    String expandedNewline = text.replaceAll("\\*", "\n<break time='1s'/>");
     String ssml = "<speak>" + expandedNewline + "</speak>";
     System.out.println("Converted string " + ssml);
     return ssml;
